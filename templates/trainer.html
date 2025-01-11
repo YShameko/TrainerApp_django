@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trainer's services</title>
+</head>
+<body>
+  {% if services %}
+      <h1>my services:</h1>
+      <table>
+      <thead>
+        <tr>
+            <td> Name </td>
+            <td> Level </td>
+            <td> Duration </td>
+            <td> Price </td>
+        </tr>
+      </thead>
+      {% for each_service in services %}
+          <tr>
+            <td>{{ each_service.category.name }}</td>
+            <td>{{ each_service.level }}</td>
+            <td>{{ each_service.duration }}</td>
+            <td>{{ each_service.price }}</td>
+          </tr>
+      {% endfor %}
+      </table>
+  {% endif %}
+  <br>
+  <h2>add a new service</h2>
+    <form action="/service/" method="post">
+        {% csrf_token %}
+        Category: <select name="category">
+                    {% for category in categories %}
+                      <option value={{ category.id }}>{{ category.name }}</option>
+                    {% endfor %}
+                  </select>
+        Duration: <select name="duration">
+                      <option value=30>30 min</option>
+                      <option value=45>45 min</option>
+                      <option value=60>1 h</option>
+                      <option value=90>1.5 h</option>
+                      <option value=120>2 h</option>
+                  </select>
+        Level: <select name="level">
+                      <option value=1>beginner</option>
+                      <option value=2>medium</option>
+                      <option value=3>advanced</option>
+                      <option value=4>expert</option>
+                  </select>
+        Price: <input type="number" name="price">
+        <br>
+        <input type="submit">
+
+    </form>
+</body>
+</html>

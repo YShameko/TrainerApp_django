@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -39,5 +39,7 @@ def register_page(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         user = User.objects.create_user(username, email, password, first_name=first_name, last_name=last_name)
+        client_group = Group.objects.get(name='client')
+        user.groups.add(client_group)
         user.save()
         return HttpResponse("A new user:", username, "was successfully created!")

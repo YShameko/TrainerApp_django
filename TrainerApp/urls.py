@@ -26,9 +26,11 @@ urlpatterns = [
     path('login/', users.views.login_page, name='user_login'),
     path('logout/', users.views.logout_page, name='user_logout'),
     path('register/', users.views.register_page, name='user_register'),
+    path('register/trainer/', trainer.views.trainer_register, name='trainer_register'),
 
     # -------------------  T R A I N E R ---------------------------------
     path('trainer/', include('trainer.urls')),
+    path('service/', trainer.views.service_page, name='trainer_service'),
 
     # -------------------  B O O K I N G ---------------------------------
     path('booking/', include('booking.urls')),
