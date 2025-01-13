@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
-def booking_time_explore(trainer_schedule, bookings, check_time_step, duration):
+def booking_time_explore(trainer_schedule, bookings, duration, check_time_step = 15):
     # Input parameters:
     # trainer_schedule: list [start_datetime, end_datetime]
     # bookings: list of tuples [(booking1_start_datetime, booking1_end_datetime),
-    #                           (booking2_start_datetime, booking2_end_datetime), ...] - ordered chronologically
-    # check_time_step: integer, in minutes
+    #                           (booking2_start_datetime, booking2_end_datetime), ...]
     # duration: integer, in minutes
+    # check_time_step: integer, in minutes, default = 15 min
     #
     # Function returns: free_timeslots_list - [free_timeslot1_start_datetime, free_timeslot2_start_datetime, ...]
     #    ordered chronologically
@@ -29,23 +29,5 @@ def booking_time_explore(trainer_schedule, bookings, check_time_step, duration):
     return free_timeslots_list
 
 #-------------------------------------------------------------------------------------------------------------------
-test_trainer_schedule = [datetime(2025,1,11, 9, 0),
-                        datetime(2025,1,11, 18, 0)]
-test_bookings = [(datetime(2025,1,11, 11, 0),
-                        datetime(2025,1,11, 12, 0)),
-                 (datetime(2025,1,11, 12, 30),
-                  datetime(2025,1,11,13,0)),
-                 (datetime(2025,1,11, 17, 0),
-                  datetime(2025,1,11, 17, 30))]
-test_check_time_shift = 15
-test_duration = 30
-
-test_timeslots = booking_time_explore(test_trainer_schedule, test_bookings, test_check_time_shift, test_duration)
-for slot in test_timeslots:
-    print(slot.strftime("%Y-%m-%d %H:%M"))
-
-print('With empty list of bookings:')
-test_bookings = []
-test_timeslots = booking_time_explore(test_trainer_schedule, test_bookings, test_check_time_shift, test_duration)
-for slot in test_timeslots:
-    print(slot.strftime("%Y-%m-%d %H:%M"))
+if __name__ == '__main__':
+    pass
