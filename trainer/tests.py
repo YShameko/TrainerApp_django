@@ -45,7 +45,7 @@ class TestSchedule(unittest.TestCase):
                     datetime(2025, 1, 11, 17, 0)
                     ]
         self.assertListEqual(expected, results)
-        #------------------------------------------------------------------------------
+        #-------------------------------------------------------------------------------
         # booking at the start of the working day
         trainer_schedule = [datetime(2025, 1, 11, 9, 0),
                                  datetime(2025, 1, 11, 18, 0)]

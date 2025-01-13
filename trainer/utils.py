@@ -10,7 +10,7 @@ def booking_time_explore(trainer_schedule, bookings, duration, check_time_step =
     #
     # Function returns: free_timeslots_list - [free_timeslot1_start_datetime, free_timeslot2_start_datetime, ...]
     #    ordered chronologically
-    # -------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     free_timeslots_list = []
     start_time, end_time = trainer_schedule
     time_to_add = start_time
