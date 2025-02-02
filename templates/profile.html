@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My profile</title>
+</head>
+<body>
+    <h2>My profile:</h2>
+    Username: <b>{{ username }}</b> <br>
+    <form action="/user/{{ user_id }}" method="post">
+        {% csrf_token %}
+        {{ update_form }}
+        <input type="submit" value="Save changes">
+    </form>
+</body>
+</html>

@@ -1,7 +1,7 @@
-from django.test import TestCase
 import unittest
-import utils
+import trainer.utils as utils
 from datetime import datetime
+from django.contrib.auth.models import Group, User
 
 # Create your tests here.
 class TestSchedule(unittest.TestCase):
@@ -134,3 +134,54 @@ class TestSchedule(unittest.TestCase):
             datetime(2025, 1, 11, 17, 0), datetime(2025, 1, 11, 17, 15)
         ]
         self.assertListEqual(expected, results)
+
+
+#-------------------------   Django tests   ------------------------------------
+from django.test import TestCase, Client
+
+class TrainerTest(TestCase):
+    def test_show_all_trainers(self):
+        client = Client()
+        response = client.get('/trainer/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_show_all_services(self):
+        client = Client()
+        response = client.get('/service/')
+        self.assertEqual(response.status_code, 200)
+        response = client.get('/service/?trainer_id=1')
+        self.assertEqual(response.status_code,200)
+
+    def test_trainer_add_service(self):
+        # anonymous user
+        client = Client()
+        response = client.post('/service/', {'category': 1, 'price': 100, 'duration': 30, 'level':1})
+        self.assertEqual(response.status_code, 403)
+
+        # client
+        Group.objects.create(name='client')
+        user = User.objects.create_user(
+                        username='user1',
+                        password='1111',
+                        email='user1@example.com',
+                        first_name='user1',
+                        last_name='password')
+        user.groups.add(Group.objects.get(name='client'))
+        user.save()
+        client.login(username='user1', password='1111')
+        response = client.post('/service/', {'category': 1, 'price': 100, 'duration': 30, 'level':1})
+        self.assertEqual(response.status_code, 403)
+
+        # trainer
+        Group.objects.create(name='trainer')
+        user = User.objects.create_user(
+                        username='trainer1',
+                        password='1111',
+                        email='trainer1@example.com',
+                        first_name='first',
+                        last_name='trainer')
+        user.groups.add(Group.objects.get(name='trainer'))
+        user.save()
+        client.login(username='trainer1', password='1111')
+        response = client.post('/service/', {'category': 1, 'price': 100, 'duration': 30, 'level':1})
+        self.assertEqual(response.status_code, 200)

@@ -22,7 +22,7 @@ import users.views, trainer.views, booking.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # ------------------- U S E R S --------------------------------------
-    path('users/', include('users.urls')),
+    path('user/', include('users.urls')),
     path('login/', users.views.login_page, name='user_login'),
     path('logout/', users.views.logout_page, name='user_logout'),
     path('register/', users.views.register_page, name='user_register'),

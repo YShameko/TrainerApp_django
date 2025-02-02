@@ -2,9 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Our services</title>
 </head>
 <body>
-
+    <h2>Hello! Here you can browse our services:</h2>
+    <p>Just a few hints:<i><br>
+        1. If you click somewhere in column 'Category', you will see all the trainers who offer trainings in this category.<br>
+        2. In the column 'Trainer' you can choose a trainer and his service.<br>
+           Then on the new page you will see all available time slots for this trainer and this service<br>
+           and will be able to choose a time that suits you.
+                        </i>
+    </p>
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Level</th>
+            <th>Price</th>
+            <th>Duration</th>
+            <th>Trainer</th>
+            <th>Book this training</th>
+        </tr>
+        {% for service in services %}
+            <tr>
+                <td><a href="/trainer?category={{ service.category.id }}">{{ service.category.name }}</a></td>
+                <td>{{ service.level }}</td>
+                <td>{{ service.price }}</td>
+                <td>{{ service.duration }}</td>
+                <td><a href="/trainer/{{ service.trainer.id }}"> {{ service.trainer.first_name }} {{ service.trainer.last_name }} </a></td>
+                <td><a href="/trainer/{{ service.trainer.id }}/{{ service.id }}">click here to book </a></td>
+               </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

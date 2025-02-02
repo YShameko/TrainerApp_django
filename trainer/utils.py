@@ -12,6 +12,8 @@ def booking_time_explore(trainer_schedule, bookings, duration, check_time_step =
     #    ordered chronologically
     # ------------------------------------------------------------------------------------------------------------
     free_timeslots_list = []
+    if len(trainer_schedule) != 2:
+        return free_timeslots_list
     start_time, end_time = trainer_schedule
     time_to_add = start_time
 

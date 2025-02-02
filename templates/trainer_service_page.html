@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book a trainer</title>
+</head>
+<body>
+    {% if available_times %}
+        <h2>Here you can book the trainer: <i>{{ service.trainer.first_name }} {{ service.trainer.last_name }}</i></h2>
+        For this service:
+        <br><b>Category: </b>{{ service.category.name }}
+        <br><b>Level: </b>{{ service.level }}
+        <br><b>Duration: </b>{{ service.duration }}
+        <br><b>Price: </b>{{ service.price }}
+        <br><br>
+
+        <form action="/trainer/{{ service.trainer_id }}/{{ service.id }}" method="post">
+            {% csrf_token %}
+            <label for="training_start">Select training start:</label>
+            <select name="training_start" id="training_start">
+                {% for start_time in available_times %}
+                    <option value="{{ start_time }}">{{ start_time }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+    {% else %}
+        <h2> So sorry, but trainer <i>{{ service.trainer.first_name }} {{ service.trainer.last_name }}</i>
+            does not have any available time slots :(
+        </h2>
+        <h2>Check this page later!</h2>
+    {% endif %}
+</body>
+</html>
