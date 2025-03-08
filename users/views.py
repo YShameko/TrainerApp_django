@@ -1,35 +1,48 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-import users.forms
+from trainer.models import Category, Service, TrainerSchedule
 from users import forms
+from users.models import Rating
+from booking import models
 
 # Create your views here.
+def main_page(request):
+    return render(request, 'index.html')
+
+@login_required(login_url='/login')
 def user_page(request):
-    return HttpResponse("This is an user page")
+    if request.method == 'GET':
+        user_group = request.user.groups.first().name
+        if user_group == 'client':
+            bookings = models.Booking.objects.filter(user=request.user).order_by('datetime_start').all()
+        else:
+            bookings = models.Booking.objects.filter(trainer=request.user).order_by('datetime_start').all()
+        my_services = Service.objects.filter(trainer=request.user).all()
+        categories = Category.objects.all()
+        schedules = TrainerSchedule.objects.filter(trainer=request.user).all()
+        update_form = forms.UpdateProfileForm(initial={'first_name': request.user.first_name,
+                                                       'last_name': request.user.last_name, 'email': request.user.email})
+        return render(request, "profile.html", {'update_form': update_form,
+                                            'username': request.user.username, 'user_group': user_group,
+                                            'bookings': bookings, 'services': my_services, 'categories': categories,
+                                            'schedules': schedules})
+
+    else:
+        update_form = forms.UpdateProfileForm(request.POST)
+        if update_form.is_valid():
+            User.objects.filter(id=request.user.id).update(**update_form.cleaned_data)
+            return redirect('/user/')
 
 def specific_user(request, user_id):
-    if request.user.is_authenticated:
-        if request.method == 'GET':
-            current_user = User.objects.get(pk=user_id)
-            update_form = forms.UpdateProfileForm(initial={'first_name': current_user.first_name,
-                                                           'last_name': current_user.last_name, 'email': current_user.email})
-            return render(request, "profile.html", {'update_form': update_form,
-                                                                'username': current_user.username, 'user_id': user_id})
-
-        else:
-            update_form = forms.UpdateProfileForm(request.POST)
-            if update_form.is_valid():
-                modified_user = User.objects.filter(id=user_id).update(**update_form.cleaned_data)
-                msg = "Your profile has been updated! Click here to <a href='/user/"+user_id+"'>go back</a> to your profile."
-                msg += "<br>Or you can choose any other page to visit :)"
-                return HttpResponse(msg)
-    else:
-        msg = "You are not logged in. To view this page you need to <a href='/login'>login</a> first."
-        return HttpResponse(msg)
+    if request.method == 'GET':
+        ratings = Rating.objects.filter(recipient=user_id).all()
+        user_about = User.objects.get(pk=user_id).username
+        return render(request, 'ratings.html', {'ratings': ratings, 'user': user_about})
 
 def login_page(request):
     if request.method == 'GET':
@@ -43,15 +56,20 @@ def login_page(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponse("You are now logged in")
+                next_url = request.POST.get('next')
+                if next_url:
+                    return redirect(next_url)
+                return redirect('/user/')
         else:
             return redirect('/login/', messages.error(request, 'Invalid username or password.'))
 
 def logout_page(request):
     if request.user.is_authenticated:
         logout(request)
-        return HttpResponse("You are logged out now")
-    return HttpResponse("This is <u>logout</u> page and you are currently not logged in. You should log in first.")
+        msg = "You are logged out now. <br>Go to the <a href='/'>main page</a> ?"
+        return render(request,'msg_board.html',{'msg':msg})
+    return render(request,'msg_board.html',
+        {'msg': "This is <u>logout</u> page and you are currently not logged in. You should log in first."})
 
 def register_page(request):
     if request.method == 'GET':
@@ -66,6 +84,6 @@ def register_page(request):
             created_user.save()
             message = "A new user: <b><i>" + register_form.cleaned_data['username'] + "</i></b> was successfully created!"
             message += "<br><br>Welcome!<br> Now you can <a href='/login'>login</a> into your new account."
-            return HttpResponse(message)
+            return render(request,'msg_board.html', {'msg':message})
         else:
             return HttpResponse(register_form.errors)

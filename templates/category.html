@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Category: {{ category }}</title>
+</head>
+{% include 'menu.html' %}
+<body>
+{% if trainers %}
+    <h2>Here are the trainers who provide service: <u>{{ category }}</u></h2>
+      <table>
+      <thead> <b>
+       <td> Category </td>
+       <td> Trainer name </td>
+       <td> Level </td>
+       <td> Duration </td>
+       <td> Price </td>
+       <td> Book this service</td>
+            </b>
+      </thead>
+        {% for trainer in trainers %}
+             <tr>
+            <td>{{ trainer.category.name }}</td>
+            <td>{{ trainer.trainer.username }}</td>
+            <td>{{ trainer.level }}</td>
+            <td>{{ trainer.duration }}</td>
+            <td>{{ trainer.price }}</td>
+            <td><a href="/trainer/{{ trainer.trainer.id }}/{{ trainer.id }}">book now! </a> </td>
+             </tr>
+        {% endfor %}
+      </table>
+{% else %}
+    <h2>No trainers were found for service: <u>{{ category }}</u></h2>
+{% endif %}
+</body>
+</html>

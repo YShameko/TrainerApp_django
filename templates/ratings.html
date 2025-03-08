@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rating</title>
+</head>
+{% include 'menu.html' %}
+<body>
+    {% if ratings %}
+        <h2>Info about: {{ user }}</h2>
+        {% for rating in ratings %}
+            <p>{{ rating.author.username }} wrote: <i>{{ rating.text }}</i><br>
+            Rating: {{ rating.rate }}
+            </p>
+        {% endfor %}
+    {% else %}
+        <h2>We have no info about this user</h2>
+    {% endif %}
+</body>
+</html>

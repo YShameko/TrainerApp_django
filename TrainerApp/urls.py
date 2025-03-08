@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # ------------------- U S E R S --------------------------------------
     path('user/', include('users.urls')),
+    path('', users.views.main_page, name='main_page'),
     path('login/', users.views.login_page, name='user_login'),
     path('logout/', users.views.logout_page, name='user_logout'),
     path('register/', users.views.register_page, name='user_register'),
@@ -31,6 +32,9 @@ urlpatterns = [
     # -------------------  T R A I N E R ---------------------------------
     path('trainer/', include('trainer.urls')),
     path('service/', trainer.views.service_page, name='trainer_service'),
+    path('service/add/<trainer_id>', trainer.views.service_add, name='trainer_service_add'),
+    path('service/delete/<service_id>', trainer.views.service_delete, name='trainer_service_delete'),
+    path('category/add', trainer.views.category_add, name='trainer_category_add'),
 
     # -------------------  B O O K I N G ---------------------------------
     path('booking/', include('booking.urls')),

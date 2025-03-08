@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Our services</title>
 </head>
+{% include 'menu.html' %}
 <body>
     <h2>Hello! Here you can browse our services:</h2>
     <p>Just a few hints:<i><br>
@@ -24,7 +25,7 @@
         </tr>
         {% for service in services %}
             <tr>
-                <td><a href="/trainer?category={{ service.category.id }}">{{ service.category.name }}</a></td>
+                <td><a href="/trainer/category/{{ service.category.id }}">{{ service.category.name }}</a></td>
                 <td>{{ service.level }}</td>
                 <td>{{ service.price }}</td>
                 <td>{{ service.duration }}</td>

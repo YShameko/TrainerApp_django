@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule</title>
+</head>
+{% include 'menu.html' %}
+<body>
+    {% if mode == 'add' %}
+        <h2>Add this schedule:</h2>
+    {% endif %}
+    {% if mode == 'edit' %}
+        <h2>Change the beginning and ending for this schedule:</h2>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            {{form}}
+            <input type="hidden" value={{ trainer }} name="trainer">
+            <input type="hidden" value={{ schedule }} name="schedule">
+            {% if mode == 'add' %}
+                <input type="submit" value="add schedule">
+            {% endif %}
+            {% if mode == 'edit' %}
+                <input type="submit" value="save changes">
+            {% endif %}
+        </p>
+    </form>
+</body>
+</html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Book a trainer</title>
 </head>
+{% include 'menu.html' %}
 <body>
     {% if available_times %}
         <h2>Here you can book the trainer: <i>{{ service.trainer.first_name }} {{ service.trainer.last_name }}</i></h2>

@@ -10,20 +10,24 @@
         }
     </style>
 </head>
+{% include 'menu.html' %}
 <body>
+  <h2>Our trainers:</h2>
   <table>
       <thead> <b>
        <td> Name </td>
        <td> Category </td>
        <td> Level </td>
+       <td> Duration </td>
        <td> Price </td>
             </b>
       </thead>
       {% for trainer in trainers %}
           <tr>
-           <td> {{ trainer.trainer.first_name }} {{ trainer.trainer.last_name }}</td>
-           <td> {{ trainer.category.name }} </td>
+           <td> <a href="/trainer/{{ trainer.trainer.id }}"> {{ trainer.trainer.first_name }} {{ trainer.trainer.last_name }} </a></td>
+           <td> <a href="/trainer/category/{{ trainer.category.id }}"> {{ trainer.category.name }}</a> </td>
            <td> {{ trainer.level }} </td>
+           <td> {{ trainer.duration }} </td>
            <td> {{ trainer.price }} </td>
           </tr>
       {% endfor %}

@@ -1,0 +1,17 @@
+<header>
+<nav>
+    {% if request.user.is_anonymous %}
+        <a href="/service/"> all services </a> |
+        <a href="/trainer/">all trainers</a> |
+        <a href="/login/"> login </a> |
+        <a href="/register/"> register </a> |
+        <a href="/register/trainer/"> register as a trainer</a>
+    {% else %}
+        <a href="/user/"> my profile </a> |
+        <a href="/service/"> all services </a> |
+        <a href="/trainer/">all trainers</a> |
+        <a href="/logout/"> logout </a>
+    {% endif %}
+</nav>
+    <hr>
+</header>

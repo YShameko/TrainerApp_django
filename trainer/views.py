@@ -1,19 +1,18 @@
-from datetime import timedelta, datetime, date
+from datetime import timedelta, datetime
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 import trainer.models
 import booking.models as booking_models
-from users.views import specific_user
+from trainer.forms import ScheduleForm
 from trainer.utils import booking_time_explore
 from dateutil import parser
 from users import forms
 
 # Create your views here.
-def category_page(request):
-    pass
 def trainers(request):
     all_trainers = trainer.models.Service.objects.all()
     return render(request, 'trainers.html', {'trainers':all_trainers})
@@ -30,30 +29,24 @@ def trainer_register(request):
             created_trainer.save()
             greeting_msg = "A new trainer: <b><i>"+register_form.cleaned_data['username']+"</i></b> was successfully created!"
             greeting_msg += "<br><br>Welcome!<br> Now you can <a href='/login'>login</a> into your new account."
-            return HttpResponse(greeting_msg)
+            return render(request,'msg_board.html', {'msg':greeting_msg})
         else:
             return HttpResponse(register_form.errors)
 
 def trainers_by_category(request, category_id):
-    return HttpResponse("Everything is temporary. Even this message.")
+    trainers = trainer.models.Service.objects.filter(category=category_id).all()
+    category = trainers[0].category.name
+    return render(request, 'category.html', {'trainers':trainers, 'category':category})
 
 def trainer_page(request, trainer_id):
-    if request.user.groups.filter(name='trainer').exists():
-        if request.method == "GET":
-            service_categories = trainer.models.Category.objects.all()
-            my_services = trainer.models.Service.objects.filter(trainer_id=trainer_id).all()
-            return render(request, 'trainer.html', {'categories': service_categories,
-                                                                        'services': my_services})
-    else:
-        trainer_model = User.objects.get(pk=trainer_id)
-        trainer_data = trainer.models.TrainerDescription.objects.filter(trainer=trainer_model)
-        trainer_schedule = trainer.models.TrainerSchedule.objects.filter(trainer=trainer_model)
-        return render(request, 'account.html', {'trainer_data': trainer_data,
-                                                'trainer_schedule': trainer_schedule})
+    if request.method == "GET":
+        service_categories = trainer.models.Category.objects.all()
+        my_services = trainer.models.Service.objects.filter(trainer_id=trainer_id).all()
+        about_trainer = trainer.models.TrainerDescription.objects.filter(trainer_id=trainer_id).first()
+        return render(request, 'trainer.html', {'categories': service_categories,
+                                                'services': my_services, 'about_trainer':about_trainer})
 
-def trainers_schedule(request, trainer_id, service_id):
-    return HttpResponse("Here you will be able to see a schedule of the specific trainer (but later)")
-
+@login_required(login_url='/login/')
 def trainer_service_page(request, trainer_id, service_id):
     current_trainer = User.objects.get(pk=trainer_id)
     specific_service = trainer.models.Service.objects.get(pk=service_id)
@@ -82,9 +75,10 @@ def trainer_service_page(request, trainer_id, service_id):
                 datetime_start=booking_start, datetime_end=booking_end, status=False)
         new_booking.save()
         message = "Your booking at " + request.POST.get('training_start') + " was created successfully!<br>"
-        message += "Please wait until <i>" + current_trainer.first_name + " " + current_trainer.last_name + "</i> confirm your booking.<br>>"
-        message += "You will get the confirmation soon. <br>"
-        return HttpResponse(message)
+        message += "Please wait until <i>" + current_trainer.first_name + " " + current_trainer.last_name + "</i> confirm your booking.<br><br>"
+        message += "You will get the confirmation soon. <br><br>"
+        message += "Back to <a href='/user/'>my profile</a>"
+        return render(request,'msg_board.html',{'msg':message})
 
 def service_page(request):
     if request.method == "GET":
@@ -105,5 +99,61 @@ def service_page(request):
             service.save()
             return redirect("/trainer/")
 
-def book_a_trainer(request, trainer_id, service_id, booking):
-    return HttpResponse("Here you will be able to book a specific trainer (but later)")
+@login_required(login_url='/login/')
+def service_add(request, trainer_id):
+    if request.method == 'POST':
+        new_service = trainer.models.Service()
+        new_service.price = request.POST.get('price')
+        new_service.level = request.POST.get('level')
+        new_service.duration = request.POST.get('duration')
+        new_service.trainer = User.objects.get(pk=trainer_id)
+        category_id = request.POST.get('category')
+        new_service.category = trainer.models.Category.objects.get(pk=category_id)
+        new_service.save()
+        return redirect("/user/")
+
+@login_required(login_url='/login/')
+def service_delete(request, service_id):
+    if request.method == 'GET':
+        the_service = trainer.models.Service.objects.filter(id=service_id).first().delete()
+        return redirect("/user/")
+    else:
+        pass
+
+@login_required(login_url='/login/')
+def category_add(request):
+    if request.method == 'POST':
+        new_category = trainer.models.Category()
+        new_category.name = request.POST.get('new_category')
+        new_category.save()
+        return redirect("/user/")
+
+@login_required(login_url='/login/')
+def add_schedule(request, trainer_id):
+    if request.method == "GET":
+        schedule_form = ScheduleForm(initial={'datetime_start': datetime.today(), 'datetime_end': datetime.today()})
+        return render(request, 'trainer_schedule.html', {'trainer':trainer_id,
+                                                             'form': schedule_form, 'mode': 'add'})
+    else:
+        schedule_form = ScheduleForm(request.POST)
+        if schedule_form.is_valid():
+            new_schedule = trainer.models.TrainerSchedule()
+            new_schedule.datetime_start = schedule_form.cleaned_data['datetime_start']
+            new_schedule.datetime_end = schedule_form.cleaned_data['datetime_end']
+            new_schedule.trainer = User.objects.get(pk=request.POST['trainer'])
+            new_schedule.save()
+            return redirect("/user/")
+
+@login_required(login_url='/login/')
+def edit_schedule(request, schedule_id):
+    if request.method == "GET":
+        the_schedule = trainer.models.TrainerSchedule.objects.get(pk=schedule_id)
+        schedule_form = ScheduleForm(initial={'datetime_start': the_schedule.datetime_start,
+                                              'datetime_end': the_schedule.datetime_end})
+        return render(request, 'trainer_schedule.html', {'schedule':schedule_id,
+                                                             'form': schedule_form, 'mode': 'edit'})
+    else:
+        schedule_form = ScheduleForm(request.POST)
+        if schedule_form.is_valid():
+            trainer.models.TrainerSchedule.objects.filter(id=request.POST['schedule']).update(**schedule_form.cleaned_data)
+            return redirect("/user/")

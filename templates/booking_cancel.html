@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cancel booking</title>
+</head>
+{% include 'menu.html' %}
+<body>
+    <h2>Do you want to cancel this booking?</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <input type="submit" value="Yes, cancel">
+    </form>
+</body>
+</html>

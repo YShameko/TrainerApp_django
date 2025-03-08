@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Trainer's services</title>
 </head>
+{% include 'menu.html' %}
 <body>
+  <h1>Hi there! </h1>
+  <p>My username is: <b><i>{{ about_trainer.trainer.username }}</i></b></p>
+  <p>About me: <i>{{ about_trainer.text}}</i></p>
   {% if services %}
-      <h1>my services:</h1>
+      <p>There are services I provide:</p>
       <table>
       <thead>
         <tr>
@@ -23,36 +27,11 @@
             <td>{{ each_service.level }}</td>
             <td>{{ each_service.duration }}</td>
             <td>{{ each_service.price }}</td>
+              <td><a href="/trainer/{{ each_service.trainer.id }}/{{ each_service.id }}"> << book now!  </a></td>
           </tr>
       {% endfor %}
       </table>
   {% endif %}
   <br>
-  <h2>add a new service</h2>
-    <form action="/service/" method="post">
-        {% csrf_token %}
-        Category: <select name="category">
-                    {% for category in categories %}
-                      <option value={{ category.id }}>{{ category.name }}</option>
-                    {% endfor %}
-                  </select>
-        Duration: <select name="duration">
-                      <option value=30>30 min</option>
-                      <option value=45>45 min</option>
-                      <option value=60>1 h</option>
-                      <option value=90>1.5 h</option>
-                      <option value=120>2 h</option>
-                  </select>
-        Level: <select name="level">
-                      <option value=1>beginner</option>
-                      <option value=2>medium</option>
-                      <option value=3>advanced</option>
-                      <option value=4>expert</option>
-                  </select>
-        Price: <input type="number" name="price">
-        <br>
-        <input type="submit">
-
-    </form>
 </body>
 </html>

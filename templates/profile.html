@@ -4,13 +4,150 @@
     <meta charset="UTF-8">
     <title>My profile</title>
 </head>
+{% include 'menu.html' %}
 <body>
-    <h2>My profile:</h2>
+    <h2>Personal data:</h2>
     Username: <b>{{ username }}</b> <br>
-    <form action="/user/{{ user_id }}" method="post">
+    <form method="post">
         {% csrf_token %}
-        {{ update_form }}
+        {{ update_form.as_p }}
         <input type="submit" value="Save changes">
     </form>
+    <!-- --------------- services, bookings and schedules for trainer ------------------------- -->
+    {% if user_group == 'trainer' %}
+        <!-- -------------------   services  ----------------------------- -->
+        {% if services %}
+            <hr>
+            <h2>My services:</h2>
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Duration</th>
+                    <th>Price</th>
+                </tr>
+                {% for service in services %}
+                    <tr>
+                        <td>{{ service.category.name }}</td>
+                        <td>{{ service.level }}</td>
+                        <td>{{ service.duration }}</td>
+                        <td>{{ service.price }}</td>
+                        <td><a href="/service/delete/{{ service.id }}"> << delete </a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <b>add a new service</b>
+        <form action="/service/add/{{ request.user.id }}" method="post">
+            {% csrf_token %}
+            Category: <select name="category">
+                        {% for category in categories %}
+                          <option value={{ category.id }}>{{ category.name }}</option>
+                        {% endfor %}
+                      </select>
+            Duration: <select name="duration">
+                          <option value=30>30 min</option>
+                          <option value=45>45 min</option>
+                          <option value=60>1 h</option>
+                          <option value=90>1.5 h</option>
+                          <option value=120>2 h</option>
+                      </select>
+            Level: <select name="level">
+                          <option value=1>beginner</option>
+                          <option value=2>medium</option>
+                          <option value=3>advanced</option>
+                          <option value=4>expert</option>
+                      </select>
+            Price: <input type="number" name="price">
+            <input type="submit" value="add this service"> <br>
+        </form>
+        <form method="post" action="/category/add">
+            {% csrf_token %}
+            <input type="text" placeholder="new category" name="new_category">
+            <input type="submit" value="add category">
+        </form>
+
+        <!-- -------------------   bookings  ----------------------------- -->
+        {% if bookings %}
+            <h2>My bookings:</h2>
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Duration</th>
+                    <th>Starts at</th>
+                    <th>till</th>
+                    <th>Client</th>
+                    <th>Confirmed</th>
+                    <th>Possible action</th>
+                </tr>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.service.category.name }}</td>
+                        <td>{{ booking.service.level }}</td>
+                        <td>{{ booking.service.duration }}</td>
+                        <td>{{ booking.datetime_start }}</td>
+                        <td>{{ booking.datetime_end }}</td>
+                        <td>{{ booking.user.username }}</td>
+                        {% if booking.status %}
+                            <td>{{ booking.status }}</td>
+                            <td> <a href="/booking/{{ booking.id }}/cancel"> << cancel </a></td>
+                        {% else %}
+                            <td>{{ booking.status }} </td>
+                            <td> <a href="/booking/{{ booking.id }}/accept"> << confirm </a>
+                             or <a href="/booking/{{ booking.id }}/cancel"> << cancel </a></td>
+                        {% endif %}
+                        <td><a href="/booking/{{ booking.id }}"> details </a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <!-- --------------------    schedules   ----------------------------- -->
+        {% if schedules %}
+            <h2>My schedules:</h2>
+            <table>
+                <tr>
+                    <th>Starts</th>
+                    <th>ends</th>
+                    <th>Possible action</th>
+                </tr>
+                {% for schedule in schedules %}
+                    <tr>
+                        <td>{{ schedule.datetime_start }}</td>
+                        <td>{{ schedule.datetime_end }}</td>
+                        <td> <a href="/trainer/edit_schedule/{{ schedule.id }}"> << edit </a> </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <br> <a href="/trainer/add_schedule/{{ request.user.id }}"> add a new schedule </a>
+    {% endif %}
+    <!-- ----------------------  bookings for client  ---------------------------- -->
+    {% if user_group == 'client' %}
+        {% if bookings %}
+            <h3>My bookings:</h3>
+            <table>
+                    <tr>
+                <th>Trainer</th>
+                <th>Service</th>
+                <th>From</th>
+                <th>till</th>
+                <th>Confirmed</th>
+                <th> </th>
+                    </tr>
+                {% for booking in bookings %}
+                    <tr>
+                    <td>{{ booking.trainer.username }}</td>
+                    <td>{{ booking.service.category.name }}</td>
+                    <td>{{ booking.datetime_start }}</td>
+                    <td>{{ booking.datetime_end }}</td>
+                    <td>{{ booking.status }}</td>
+                    <td><a href="/booking/{{ booking.id }}"> << details </a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    {% endif %}
+
 </body>
 </html>
